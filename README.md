@@ -11,7 +11,7 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-Create your database first
+Create your database first.
 ```bash
 python database.py
 ```
@@ -30,7 +30,7 @@ python all_passwords.py
 ```
 
 ## Testing
-The project has basic tests. You can run them as follows:
+The project has basic tests. You can run them as follows.
 ```bash
 python tests.py
 ```
