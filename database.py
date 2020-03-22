@@ -8,9 +8,11 @@ from password import Password
 
 
 class DBConnection:
-    db_file = os.path.join(os.environ.get('SQLITE_DB_PATH', os.path.abspath(os.getcwd())), 'passwords.db')
-
-    def __init__(self):
+    def __init__(self, db_file: str = None) -> None:
+        if db_file is None:
+            self.db_file = os.path.join(os.path.abspath(os.getcwd()), 'passwords.db')
+        else:
+            self.db_file = db_file
         self._db_connection = sqlite3.connect(self.db_file)
         self._db_cursor = self._db_connection.cursor()
 
@@ -19,25 +21,25 @@ class DBConnection:
             params = []
         return self._db_cursor.execute(query, params)
 
-    def __del__(self):
+    def __del__(self) -> None:
         self._db_connection.commit()
         self._db_connection.close()
 
     @classmethod
-    def create_password_and_save(cls, name: str) -> None:
+    def create_password_and_save(cls, name: str, db_file: str = None) -> None:
         sql = """
         INSERT INTO passwords (name, password)
         VALUES (?, ?)
         """
 
         password = Password()
-        db_object = DBConnection()
+        db_object = DBConnection(db_file=db_file)
         db_object.query(sql, [name, str(password)])
         pyperclip.copy(str(password))
         print(f"You added password for {name}. Password has been copied to clipboard.")
 
     @classmethod
-    def create_table(cls) -> None:
+    def create_table(cls, db_file: str = None) -> None:
         sql = """
             CREATE TABLE IF NOT EXISTS passwords (
             id integer PRIMARY KEY,
@@ -45,25 +47,26 @@ class DBConnection:
             password text NOT NULL
             );
         """
-        db_object = DBConnection()
+
+        db_object = DBConnection(db_file=db_file)
         db_object.query(sql)
 
     @classmethod
-    def get_password_from_db(cls, name: str) -> None:
+    def get_password_from_db(cls, name: str, db_file: str = None) -> None:
         sql = "SELECT name, password FROM passwords WHERE name LIKE ?"
-        db_object = DBConnection()
+        db_object = DBConnection(db_file=db_file)
         result = db_object.query(sql, [name])
-        if result.rowcount():
+        if result.rowcount:
             pyperclip.copy(result.fetchone()[1])
             print(f"Your password for {name} was copied to clipboard")
         else:
             print(f"There is no result for {name}. Try to take all names and get the correct one")
 
     @classmethod
-    def get_all_passwords(cls):
+    def get_all_passwords(cls, db_file: str = None):
         sql = "SELECT name FROM passwords"
 
-        db_object = DBConnection()
+        db_object = DBConnection(db_file=db_file)
         result = db_object.query(sql)
 
         if result.rowcount:

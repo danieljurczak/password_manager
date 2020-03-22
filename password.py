@@ -22,6 +22,9 @@ class Password:
     def __str__(self):
         return self.password
 
+    def __len__(self):
+        return self.length
+
     @property
     def list_of_available_chars(self):
         available_chars = []
